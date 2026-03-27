@@ -1,6 +1,6 @@
 interface UnitToggleProps {
-  units: 'metric' | 'imperial';
-  onToggle: (units: 'metric' | 'imperial') => void;
+  units: 'metric' | 'imperial'
+  onToggle: (units: 'metric' | 'imperial') => void
 }
 
 export function UnitToggle({ units, onToggle }: UnitToggleProps) {
@@ -8,20 +8,25 @@ export function UnitToggle({ units, onToggle }: UnitToggleProps) {
     <div className="flex bg-bg-secondary rounded-lg overflow-hidden">
       <button
         className={`py-1.5 px-3 border-none text-sm font-medium transition-all duration-200 cursor-pointer ${
-          units === 'imperial' ? 'bg-accent text-white' : 'bg-transparent text-text-secondary'
-        }`}
-        onClick={() => onToggle('imperial')}
-      >
-        &deg;F
-      </button>
-      <button
-        className={`py-1.5 px-3 border-none text-sm font-medium transition-all duration-200 cursor-pointer ${
-          units === 'metric' ? 'bg-accent text-white' : 'bg-transparent text-text-secondary'
+          units === 'metric'
+            ? 'bg-accent text-white'
+            : 'bg-transparent text-text-secondary'
         }`}
         onClick={() => onToggle('metric')}
       >
         &deg;C
       </button>
+
+      <button
+        className={`py-1.5 px-3 border-none text-sm font-medium transition-all duration-200 cursor-pointer ${
+          units === 'imperial'
+            ? 'bg-accent text-white'
+            : 'bg-transparent text-text-secondary'
+        }`}
+        onClick={() => onToggle('imperial')}
+      >
+        &deg;F
+      </button>
     </div>
-  );
+  )
 }

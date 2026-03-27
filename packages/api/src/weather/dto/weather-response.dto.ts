@@ -1,94 +1,94 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger'
 
 class CoordinatesDto {
   @ApiProperty({ example: 51.5074 })
-  lat: number;
+  lat: number
 
   @ApiProperty({ example: -0.1278 })
-  lon: number;
+  lon: number
 }
 
 class LocationDto {
   @ApiProperty({ example: 'London' })
-  name: string;
+  name: string
 
   @ApiProperty({ example: 'GB' })
-  country: string;
+  country: string
 
   @ApiProperty()
-  coordinates: CoordinatesDto;
+  coordinates: CoordinatesDto
 }
 
 class ConditionDto {
   @ApiProperty({ example: 'Clouds' })
-  main: string;
+  main: string
 
   @ApiProperty({ example: 'overcast clouds' })
-  description: string;
+  description: string
 
   @ApiProperty({ example: '04d' })
-  icon: string;
+  icon: string
 }
 
 class CurrentWeatherDto {
   @ApiProperty({ example: 15.2 })
-  temperature: number;
+  temperature: number
 
   @ApiProperty({ example: 13.8 })
-  feelsLike: number;
+  feelsLike: number
 
   @ApiProperty({ example: 72 })
-  humidity: number;
+  humidity: number
 
   @ApiProperty({ example: 1013 })
-  pressure: number;
+  pressure: number
 
   @ApiProperty({ example: 5.4 })
-  windSpeed: number;
+  windSpeed: number
 
   @ApiProperty({ example: 220 })
-  windDirection: number;
+  windDirection: number
 
   @ApiProperty({ example: 10000 })
-  visibility: number;
+  visibility: number
 
   @ApiProperty({ example: 3.5, nullable: true })
-  uvIndex: number | null;
+  uvIndex: number | null
 
   @ApiProperty()
-  condition: ConditionDto;
+  condition: ConditionDto
 }
 
 class ForecastDayDto {
   @ApiProperty({ example: '2024-03-15' })
-  date: string;
+  date: string
 
   @ApiProperty({ example: 18.5 })
-  temperatureHigh: number;
+  temperatureHigh: number
 
   @ApiProperty({ example: 12.3 })
-  temperatureLow: number;
+  temperatureLow: number
 
   @ApiProperty({ example: 65 })
-  humidity: number;
+  humidity: number
 
   @ApiProperty({ example: 4.2 })
-  windSpeed: number;
+  windSpeed: number
 
   @ApiProperty()
-  condition: ConditionDto;
+  condition: ConditionDto
 }
 
 export class WeatherResponseDto {
   @ApiProperty({ example: 'openweather' })
-  provider: string;
+  provider: string
 
   @ApiProperty()
-  location: LocationDto;
+  location: LocationDto
 
   @ApiProperty()
-  current: CurrentWeatherDto;
+  current: CurrentWeatherDto
 
   @ApiProperty({ type: [ForecastDayDto] })
-  forecast: ForecastDayDto[];
+  forecast: ForecastDayDto[]
 }

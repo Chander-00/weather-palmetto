@@ -1,0 +1,17 @@
+services:
+  api:
+    build: ./packages/api
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./packages/api/.env
+    environment:
+      - NODE_ENV=production
+      - CORS_ORIGIN=http://localhost
+
+  web:
+    build: ./packages/web
+    ports:
+      - "80:80"
+    depends_on:
+      - api

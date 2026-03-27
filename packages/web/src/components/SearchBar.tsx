@@ -1,26 +1,36 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react'
 
 interface SearchBarProps {
-  onSearch: (city: string) => void;
-  onLocationSearch: () => void;
-  loading: boolean;
+  onSearch: (city: string) => void
+  onLocationSearch: () => void
+  loading: boolean
 }
 
-export function SearchBar({ onSearch, onLocationSearch, loading }: SearchBarProps) {
-  const [query, setQuery] = useState('');
+export function SearchBar({
+  onSearch,
+  onLocationSearch,
+  loading
+}: SearchBarProps) {
+  const [query, setQuery] = useState('')
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const trimmed = query.trim();
-    if (trimmed) onSearch(trimmed);
-  };
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const trimmed = query.trim()
+    if (trimmed) onSearch(trimmed)
+  }
 
   return (
-    <form className="flex gap-3 mb-8 flex-wrap sm:flex-nowrap" onSubmit={handleSubmit}>
+    <form
+      className="flex gap-3 mb-8 flex-wrap sm:flex-nowrap"
+      onSubmit={handleSubmit}
+    >
       <div className="relative flex-1 basis-full sm:basis-auto">
         <svg
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-text-secondary"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-text-secondary"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
         >
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.35-4.35" />
@@ -48,11 +58,18 @@ export function SearchBar({ onSearch, onLocationSearch, loading }: SearchBarProp
         disabled={loading}
         title="Use my location"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          width="18"
+          height="18"
+        >
           <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
           <circle cx="12" cy="9" r="2.5" />
         </svg>
       </button>
     </form>
-  );
+  )
 }

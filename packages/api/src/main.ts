@@ -1,37 +1,50 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { NestFactory } from '@nestjs/core'
+import { Logger, ValidationPipe } from '@nestjs/common'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import * as compression from 'compression'
+import helmet from 'helmet'
+import { AppModule } from './app.module'
+import { validateEnv } from './config/env.validation'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule)
+  const logger = new Logger('Bootstrap')
+
+  validateEnv()
+
+  app.use(helmet())
+  app.use(compression())
 
   app.enableCors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-    methods: ['GET'],
-  });
+    methods: ['GET']
+  })
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
+      forbidNonWhitelisted: true
+    })
+  )
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api')
+
+  app.enableShutdownHooks()
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Weather API')
     .setDescription('Weather data aggregation API with multi-provider fallback')
     .setVersion('1.0')
-    .build();
+    .build()
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  const document = SwaggerModule.createDocument(app, swaggerConfig)
+  SwaggerModule.setup('api/docs', app, document)
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
+  const port = process.env.PORT || 3001
+  await app.listen(port)
+  logger.log(`Server running on port ${port}`)
+  logger.log(`Swagger docs at http://localhost:${port}/api/docs`)
 }
 
-bootstrap();
+bootstrap()
