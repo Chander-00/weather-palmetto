@@ -1,5 +1,5 @@
 import type { ForecastDay } from '@/types/weather';
-import { getWeatherIconUrl } from '@/services/weather-icons';
+import { WeatherIcon } from '@/components/WeatherIcon';
 
 interface ForecastProps {
   forecast: ForecastDay[];
@@ -33,11 +33,7 @@ export function Forecast({ forecast, units }: ForecastProps) {
             className="flex flex-col items-center gap-2 py-4 px-2 bg-bg-card rounded-xl transition-all duration-200 hover:bg-bg-card-hover hover:-translate-y-0.5"
           >
             <span className="text-sm font-semibold">{formatDay(day.date)}</span>
-            <img
-              className="w-12 h-12"
-              src={getWeatherIconUrl(day.condition.icon)}
-              alt={day.condition.description}
-            />
+            <WeatherIcon condition={day.condition.main} size={48} />
             <span className="text-xs text-text-secondary text-center">{day.condition.main}</span>
             <div className="flex gap-2 text-sm">
               <span className="font-semibold">{day.temperatureHigh}&deg;{tempUnit}</span>

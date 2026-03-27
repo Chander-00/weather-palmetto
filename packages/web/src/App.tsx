@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { SearchBar } from '@/components/SearchBar';
 import { CurrentWeather } from '@/components/CurrentWeather';
 import { WeatherDetails } from '@/components/WeatherDetails';
@@ -10,23 +9,13 @@ import { useWeather } from '@/hooks/useWeather';
 export function App() {
   const { weather, loading, error, searchByCity, searchByLocation, units, setUnits } = useWeather();
 
-  const handleUnitToggle = useCallback(
-    (newUnits: 'metric' | 'imperial') => {
-      setUnits(newUnits);
-      if (weather) {
-        searchByCity(weather.location.name, newUnits);
-      }
-    },
-    [weather, searchByCity, setUnits],
-  );
-
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-br from-accent to-purple-400 bg-clip-text text-transparent">
           Weather App
         </h1>
-        <UnitToggle units={units} onToggle={handleUnitToggle} />
+        <UnitToggle units={units} onToggle={setUnits} />
       </header>
 
       <SearchBar onSearch={searchByCity} onLocationSearch={searchByLocation} loading={loading} />

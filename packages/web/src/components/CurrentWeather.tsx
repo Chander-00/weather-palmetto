@@ -1,5 +1,5 @@
 import type { WeatherData } from '@/types/weather';
-import { getWeatherIconUrl } from '@/services/weather-icons';
+import { WeatherIcon } from '@/components/WeatherIcon';
 
 interface CurrentWeatherProps {
   data: WeatherData;
@@ -12,13 +12,11 @@ export function CurrentWeather({ data, units }: CurrentWeatherProps) {
   return (
     <div className="bg-gradient-to-br from-bg-card to-bg-secondary rounded-2xl p-8 mb-6 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
       <div className="flex items-center gap-4 mb-4">
-        <div>
-          <img
-            className="w-24 h-24 drop-shadow-[0_2px_8px_rgba(108,99,255,0.3)]"
-            src={getWeatherIconUrl(data.current.condition.icon)}
-            alt={data.current.condition.description}
-          />
-        </div>
+        <WeatherIcon
+          condition={data.current.condition.main}
+          size={96}
+          className="drop-shadow-[0_2px_8px_rgba(108,99,255,0.3)]"
+        />
         <div className="flex items-start">
           <span className="text-7xl sm:text-8xl font-bold leading-none">{data.current.temperature}</span>
           <span className="text-2xl text-text-secondary mt-2">&deg;{tempUnit}</span>

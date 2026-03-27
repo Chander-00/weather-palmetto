@@ -6,23 +6,16 @@ const api = axios.create({
   timeout: 15000,
 });
 
-export async function fetchWeatherByCity(
-  city: string,
-  units: 'metric' | 'imperial' = 'imperial',
-): Promise<WeatherData> {
+export async function fetchWeatherByCity(city: string): Promise<WeatherData> {
   const { data } = await api.get<WeatherData>('/weather', {
-    params: { city, units },
+    params: { city },
   });
   return data;
 }
 
-export async function fetchWeatherByCoordinates(
-  lat: number,
-  lon: number,
-  units: 'metric' | 'imperial' = 'imperial',
-): Promise<WeatherData> {
+export async function fetchWeatherByCoordinates(lat: number, lon: number): Promise<WeatherData> {
   const { data } = await api.get<WeatherData>('/weather', {
-    params: { lat, lon, units },
+    params: { lat, lon },
   });
   return data;
 }
