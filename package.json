@@ -1,0 +1,18 @@
+{
+  "name": "weather-app-palmetto",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run start:dev -w @weather-app/api",
+    "dev:web": "npm run dev -w @weather-app/web",
+    "build": "npm run build -w @weather-app/api && npm run build -w @weather-app/web",
+    "test": "npm run test -w @weather-app/api && npm run test -w @weather-app/web",
+    "lint": "npm run lint -w @weather-app/api && npm run lint -w @weather-app/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

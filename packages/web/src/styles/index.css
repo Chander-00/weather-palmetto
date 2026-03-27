@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0f1023;
+  --color-bg-secondary: #1a1b3a;
+  --color-bg-card: #232549;
+  --color-bg-card-hover: #2d2f5e;
+  --color-text-primary: #e8e8f0;
+  --color-text-secondary: #9d9db7;
+  --color-accent: #6c63ff;
+  --color-accent-hover: #5a52e0;
+  --color-error: #ff6b6b;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
