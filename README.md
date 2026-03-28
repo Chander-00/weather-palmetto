@@ -18,7 +18,7 @@ cp packages/api/.env.example packages/api/.env
 docker compose up --build
 ```
 
-Open `http://localhost` in your browser. That's it.
+Open `http://localhost:8080` in your browser. That's it.
 
 > Get a free OpenWeatherMap API key at [openweathermap.org/api](https://openweathermap.org/api) (takes 2 minutes). AccuWeather key is optional. Weather.gov requires no key but only covers the US.
 

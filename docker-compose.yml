@@ -9,13 +9,13 @@ services:
       - ./packages/api/.env
     environment:
       - NODE_ENV=production
-      - CORS_ORIGIN=http://localhost
+      - CORS_ORIGIN=http://localhost:8080
 
   web:
     build:
       context: .
       dockerfile: Dockerfile.web
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - api
