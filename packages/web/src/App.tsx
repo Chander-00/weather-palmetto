@@ -58,7 +58,7 @@ export function App() {
         <div className="flex flex-col items-center gap-6 py-16 text-text-secondary">
           <svg
             className="opacity-40"
-            viewBox="0 0 24 24"
+            viewBox="-1 -1 26 26"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
