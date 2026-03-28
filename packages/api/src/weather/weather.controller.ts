@@ -53,7 +53,9 @@ export class WeatherController {
         )
       }
 
-      throw new InternalServerErrorException(message)
+      throw new InternalServerErrorException(
+        'Unable to fetch weather data. Please try again later.'
+      )
     }
   }
 

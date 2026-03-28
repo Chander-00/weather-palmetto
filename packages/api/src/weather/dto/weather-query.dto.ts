@@ -4,6 +4,7 @@ import {
   IsNumber,
   Min,
   Max,
+  MaxLength,
   ValidateIf
 } from 'class-validator'
 import { Type } from 'class-transformer'
@@ -16,6 +17,7 @@ export class WeatherQueryDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   @ValidateIf((o) => !o.lat && !o.lon)
   city?: string
 
