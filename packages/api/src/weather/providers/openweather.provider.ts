@@ -4,7 +4,8 @@ import axios from 'axios'
 import {
   WeatherProvider,
   NormalizedWeather,
-  ForecastDay
+  ForecastDay,
+  HourlyForecast
 } from '../interfaces/weather-provider.interface'
 
 const BASE_URL = 'https://api.openweathermap.org/data/2.5'
@@ -83,6 +84,17 @@ export class OpenWeatherProvider implements WeatherProvider {
         }
       })
 
+    const hourly: HourlyForecast[] = forecast.list.slice(0, 8).map((entry: any) => ({
+      time: entry.dt_txt,
+      temperature: Math.round(entry.main.temp),
+      condition: {
+        main: entry.weather[0].main,
+        description: entry.weather[0].description,
+        icon: entry.weather[0].icon
+      },
+      precipitationChance: Math.round((entry.pop || 0) * 100)
+    }))
+
     return {
       provider: this.name,
       location: {
@@ -105,7 +117,9 @@ export class OpenWeatherProvider implements WeatherProvider {
           icon: current.weather[0].icon
         }
       },
-      forecast: forecastDays
+      forecast: forecastDays,
+      hourly,
+      alerts: []
     }
   }
 }

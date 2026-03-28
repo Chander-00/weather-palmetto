@@ -63,13 +63,20 @@ export class WeatherGovProvider implements WeatherProvider {
 
     const stationsUrl = `${forecastOffice}/stations`
 
-    const [forecastResponse, stationsResponse] = await Promise.all([
-      axios.get(
-        `${BASE_URL}/gridpoints/${pointsResponse.data.properties.gridId}/${gridX},${gridY}/forecast`,
-        { headers }
-      ),
-      axios.get(stationsUrl, { headers }).catch(() => null)
-    ])
+    const [forecastResponse, hourlyResponse, stationsResponse] =
+      await Promise.all([
+        axios.get(
+          `${BASE_URL}/gridpoints/${pointsResponse.data.properties.gridId}/${gridX},${gridY}/forecast`,
+          { headers }
+        ),
+        axios
+          .get(
+            `${BASE_URL}/gridpoints/${pointsResponse.data.properties.gridId}/${gridX},${gridY}/forecast/hourly`,
+            { headers }
+          )
+          .catch(() => null),
+        axios.get(stationsUrl, { headers }).catch(() => null)
+      ])
 
     let currentObservation: any = null
     if (stationsResponse?.data?.features?.length) {
@@ -94,7 +101,8 @@ export class WeatherGovProvider implements WeatherProvider {
       lat,
       lon,
       currentObservation,
-      forecastResponse.data.properties.periods
+      forecastResponse.data.properties.periods,
+      hourlyResponse?.data?.properties?.periods || []
     )
   }
 
@@ -112,7 +120,8 @@ export class WeatherGovProvider implements WeatherProvider {
     lat: number,
     lon: number,
     observation: any,
-    forecastPeriods: any[]
+    forecastPeriods: any[],
+    hourlyPeriods: any[]
   ): NormalizedWeather {
     const current = forecastPeriods[0]
 
@@ -187,7 +196,18 @@ export class WeatherGovProvider implements WeatherProvider {
           icon: this.mapIcon(current.shortForecast)
         }
       },
-      forecast: forecastDays
+      forecast: forecastDays,
+      hourly: hourlyPeriods.slice(0, 8).map((period: any) => ({
+        time: period.startTime,
+        temperature: period.temperature,
+        condition: {
+          main: period.shortForecast,
+          description: period.detailedForecast || period.shortForecast,
+          icon: this.mapIcon(period.shortForecast)
+        },
+        precipitationChance: period.probabilityOfPrecipitation?.value ?? 0
+      })),
+      alerts: []
     }
   }
 

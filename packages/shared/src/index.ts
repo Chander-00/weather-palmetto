@@ -3,5 +3,7 @@ export type {
   WeatherCondition,
   CurrentWeather,
   ForecastDay,
+  HourlyForecast,
+  WeatherAlert,
   WeatherData
 } from './weather.types'

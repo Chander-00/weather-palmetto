@@ -36,7 +36,9 @@ const mockImperialData = {
       windSpeed: 8,
       condition: { main: 'Clear', description: 'clear sky', icon: '01d' }
     }
-  ]
+  ],
+  hourly: [],
+  alerts: []
 }
 
 describe('useWeather', () => {

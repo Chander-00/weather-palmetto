@@ -8,6 +8,7 @@ import {
 import { OpenWeatherProvider } from './providers/openweather.provider'
 import { AccuWeatherProvider } from './providers/accuweather.provider'
 import { WeatherGovProvider } from './providers/weathergov.provider'
+import { WeatherAlertsService } from './weather-alerts.service'
 
 @Injectable()
 export class WeatherService {
@@ -18,6 +19,7 @@ export class WeatherService {
     private readonly openWeather: OpenWeatherProvider,
     private readonly accuWeather: AccuWeatherProvider,
     private readonly weatherGov: WeatherGovProvider,
+    private readonly alertsService: WeatherAlertsService,
     @Inject(CACHE_MANAGER) private cache: Cache
   ) {
     this.providers = [this.openWeather, this.accuWeather, this.weatherGov].sort(
@@ -40,6 +42,8 @@ export class WeatherService {
     const result = await this.fetchWithFallback((provider) =>
       provider.getWeatherByCity(city)
     )
+
+    result.alerts = this.alertsService.generate(result.current, result.hourly)
 
     if (units === 'metric') {
       this.convertToMetric(result)
@@ -65,6 +69,8 @@ export class WeatherService {
     const result = await this.fetchWithFallback((provider) =>
       provider.getWeatherByCoordinates(lat, lon)
     )
+
+    result.alerts = this.alertsService.generate(result.current, result.hourly)
 
     if (units === 'metric') {
       this.convertToMetric(result)
@@ -110,6 +116,10 @@ export class WeatherService {
       day.temperatureHigh = toC(day.temperatureHigh)
       day.temperatureLow = toC(day.temperatureLow)
       day.windSpeed = Math.round(day.windSpeed * 1.60934)
+    }
+
+    for (const hour of weather.hourly) {
+      hour.temperature = toC(hour.temperature)
     }
   }
 }

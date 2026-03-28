@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { SearchBar } from './SearchBar'
 
+const placeholder = 'Search city... (/ or Ctrl+K)'
+
 describe('SearchBar', () => {
   it('renders input and buttons', () => {
     render(
@@ -11,7 +13,7 @@ describe('SearchBar', () => {
         loading={false}
       />
     )
-    expect(screen.getByPlaceholderText('Search city...')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(placeholder)).toBeInTheDocument()
     expect(screen.getByText('Search')).toBeInTheDocument()
   })
 
@@ -25,7 +27,7 @@ describe('SearchBar', () => {
       />
     )
 
-    const input = screen.getByPlaceholderText('Search city...')
+    const input = screen.getByPlaceholderText(placeholder)
     fireEvent.change(input, { target: { value: '  London  ' } })
     fireEvent.submit(input.closest('form')!)
 
@@ -34,10 +36,14 @@ describe('SearchBar', () => {
 
   it('disables inputs when loading', () => {
     render(
-      <SearchBar onSearch={vi.fn()} onLocationSearch={vi.fn()} loading={true} />
+      <SearchBar
+        onSearch={vi.fn()}
+        onLocationSearch={vi.fn()}
+        loading={true}
+      />
     )
-    expect(screen.getByPlaceholderText('Search city...')).toBeDisabled()
-    expect(screen.getByText('Searching...')).toBeDisabled()
+    expect(screen.getByPlaceholderText(placeholder)).toBeDisabled()
+    expect(screen.getByText('...')).toBeDisabled()
   })
 
   it('does not call onSearch with empty input', () => {
@@ -50,7 +56,7 @@ describe('SearchBar', () => {
       />
     )
     fireEvent.submit(
-      screen.getByPlaceholderText('Search city...').closest('form')!
+      screen.getByPlaceholderText(placeholder).closest('form')!
     )
     expect(onSearch).not.toHaveBeenCalled()
   })

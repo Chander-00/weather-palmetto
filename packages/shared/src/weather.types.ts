@@ -30,6 +30,18 @@ export interface ForecastDay {
   condition: WeatherCondition
 }
 
+export interface HourlyForecast {
+  time: string
+  temperature: number
+  condition: WeatherCondition
+  precipitationChance: number
+}
+
+export interface WeatherAlert {
+  severity: 'info' | 'warning' | 'danger'
+  message: string
+}
+
 export interface WeatherData {
   provider: string
   location: {
@@ -39,4 +51,6 @@ export interface WeatherData {
   }
   current: CurrentWeather
   forecast: ForecastDay[]
+  hourly: HourlyForecast[]
+  alerts: WeatherAlert[]
 }

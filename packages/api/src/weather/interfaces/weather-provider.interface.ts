@@ -3,6 +3,7 @@ import type { WeatherData } from '@weather-app/shared'
 export type {
   WeatherData as NormalizedWeather,
   ForecastDay,
+  HourlyForecast,
   WeatherCondition,
   Coordinates,
   CurrentWeather

@@ -23,7 +23,9 @@ const mockWeatherData: NormalizedWeather = {
     uvIndex: null,
     condition: { main: 'Clouds', description: 'overcast clouds', icon: '04d' }
   },
-  forecast: []
+  forecast: [],
+  hourly: [],
+  alerts: []
 }
 
 describe('WeatherService', () => {
@@ -31,6 +33,7 @@ describe('WeatherService', () => {
   let openWeather: Partial<OpenWeatherProvider>
   let accuWeather: Partial<AccuWeatherProvider>
   let weatherGov: Partial<WeatherGovProvider>
+  let mockAlertsService: { generate: ReturnType<typeof vi.fn> }
   let mockCache: {
     get: ReturnType<typeof vi.fn>
     set: ReturnType<typeof vi.fn>
@@ -69,6 +72,10 @@ describe('WeatherService', () => {
         .mockResolvedValue({ ...mockWeatherData, provider: 'weathergov' })
     }
 
+    mockAlertsService = {
+      generate: vi.fn().mockReturnValue([])
+    }
+
     mockCache = {
       get: vi.fn().mockResolvedValue(null),
       set: vi.fn().mockResolvedValue(undefined)
@@ -78,6 +85,7 @@ describe('WeatherService', () => {
       openWeather as any,
       accuWeather as any,
       weatherGov as any,
+      mockAlertsService as any,
       mockCache as any
     )
   })

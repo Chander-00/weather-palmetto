@@ -38,6 +38,13 @@ export function CurrentWeather({ data, units }: CurrentWeatherProps) {
             </p>
             <p className="text-text-secondary text-sm mt-1">
               Feels like {data.current.feelsLike}&deg;{tempUnit}
+              {data.current.feelsLike !== data.current.temperature && (
+                <span className="ml-1 opacity-70">
+                  ({data.current.feelsLike > data.current.temperature
+                    ? 'humidity makes it warmer'
+                    : 'wind chill makes it colder'})
+                </span>
+              )}
             </p>
           </div>
         </div>

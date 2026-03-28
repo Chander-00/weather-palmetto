@@ -121,7 +121,9 @@ export class AccuWeatherProvider implements WeatherProvider {
           icon: String(current.WeatherIcon)
         }
       },
-      forecast: forecastDays
+      forecast: forecastDays,
+      hourly: [],
+      alerts: []
     }
   }
 }

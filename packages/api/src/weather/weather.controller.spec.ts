@@ -21,7 +21,9 @@ const mockWeatherData = {
     uvIndex: null,
     condition: { main: 'Clouds', description: 'overcast clouds', icon: '04d' }
   },
-  forecast: []
+  forecast: [],
+  hourly: [],
+  alerts: []
 }
 
 describe('WeatherController', () => {
