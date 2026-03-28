@@ -92,7 +92,6 @@ Each provider normalizes its response to a shared `WeatherData` schema (defined 
 
 - **Client-side unit conversion**: The API always returns imperial. The frontend converts to metric via `useMemo`, so toggling units is instant with no network request.
 - **Shared types package**: `@weather-app/shared` is a workspace package that both frontend and backend depend on, keeping the `WeatherData` contract in sync.
-- **Provider-agnostic icons**: SVG weather icons are mapped by condition text (e.g. "Clouds", "Rain") rather than provider-specific icon codes, so they work regardless of which provider responds.
 - **Co-located tests**: Test files live next to the code they test for easy navigation.
 
 ### Production-Ready Features
@@ -106,6 +105,26 @@ Each provider normalizes its response to a shared `WeatherData` schema (defined 
 - **Health check**: `GET /api/health` for uptime monitoring
 - **Graceful shutdown**: `enableShutdownHooks()` for clean container stops
 - **Environment validation**: Warns on startup if API keys are missing
+
+## Production Deployment
+
+In production, images should be built once and pushed to a container registry, not built on every deploy:
+
+```bash
+# Build and push images (CI/CD)
+docker build -t registry.example.com/weather-api ./packages/api
+docker build -t registry.example.com/weather-web ./packages/web
+docker push registry.example.com/weather-api
+docker push registry.example.com/weather-web
+```
+
+Then deploy with `docker-compose.prod.yml` or an orchestrator (ECS, Kubernetes, etc.) that pulls the pre-built images. Environment variables should be injected via the orchestrator's secret management, not `.env` files.
+
+For a minimal VPS deploy:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
 
 ## API Documentation
 

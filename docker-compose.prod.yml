@@ -1,0 +1,27 @@
+services:
+  api:
+    image: registry.example.com/weather-api:latest
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - ACCUWEATHER_API_KEY=${ACCUWEATHER_API_KEY}
+      - CORS_ORIGIN=https://yourdomain.com
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    image: registry.example.com/weather-web:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      api:
+        condition: service_healthy
