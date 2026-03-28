@@ -4,4 +4,4 @@ export type {
   CurrentWeather,
   ForecastDay,
   WeatherData
-} from '@weather-app/shared'
+} from './weather.types'

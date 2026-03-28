@@ -3,9 +3,14 @@ import { render, screen } from '@testing-library/react'
 import { Forecast } from './Forecast'
 import type { ForecastDay } from '@/types/weather'
 
+function todayLocal(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 const mockForecast: ForecastDay[] = [
   {
-    date: new Date().toISOString().split('T')[0],
+    date: todayLocal(),
     temperatureHigh: 65,
     temperatureLow: 50,
     humidity: 60,
