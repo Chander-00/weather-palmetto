@@ -93,6 +93,7 @@ Each provider normalizes its response to a shared `WeatherData` schema (defined 
 - **Client-side unit conversion**: The API always returns imperial. The frontend converts to metric via `useMemo`, so toggling units is instant with no network request.
 - **Shared types package**: `@weather-app/shared` is a workspace package that both frontend and backend depend on, keeping the `WeatherData` contract in sync.
 - **Co-located tests**: Test files live next to the code they test for easy navigation.
+- **npm workspaces over Nx**: For a two-package monorepo, Nx adds significant tooling overhead (config files, plugins, build graph) without meaningful benefit. npm workspaces gives us shared dependencies, cross-package linking, and workspace scripts with zero extra dependencies. If this grew to 5+ packages with complex build dependencies, Nx would start paying for itself with its caching and task orchestration.
 
 ### Production-Ready Features
 
