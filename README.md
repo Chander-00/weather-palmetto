@@ -145,7 +145,7 @@ weather-app-palmetto/
 - **Performance**: gzip compression, server-side caching (5-minute TTL)
 - **Rate limiting**: 30 requests/minute via `@nestjs/throttler`
 - **Error handling**: Global exception filter with consistent error shape, proper 404 for not-found cities, frontend error states with retry
-- **Logging**: Request logging interceptor (method, URL, elapsed time), provider-level logging (which provider served the request, cache hits)
+- **Logging**: Request trace IDs (`trace_id`) on every log line, structured JSON logs written to `packages/api/logs.jsonl` (NDJSON format, ready for Datadog/ELK), request logging interceptor (method, URL, elapsed time), provider-level logging
 - **Validation**: DTOs with `class-validator` for input validation
 - **Health check**: `GET /api/health` for uptime monitoring
 - **Graceful shutdown**: `enableShutdownHooks()` for clean container stops
@@ -173,7 +173,7 @@ docker compose -f docker-compose.prod.yml up -d
 
 ## API Documentation
 
-Swagger docs are available at `/api/docs` when the server is running.
+Swagger docs are available at `/api/docs` when the server is running. A static OpenAPI spec is also generated at `packages/api/swagger.json` on every startup — you can import it into Postman or any OpenAPI-compatible tool.
 
 ### Endpoints
 
@@ -280,4 +280,5 @@ npm run test:watch -w @weather-app/web
 | `OPENWEATHER_API_KEY` | Recommended | OpenWeatherMap API key |
 | `ACCUWEATHER_API_KEY` | Optional | AccuWeather API key (fallback) |
 | `PORT` | No | API server port (default: 3001) |
-| `CORS_ORIGIN` | No | Allowed CORS origin (default: `http://localhost:5173`) |
+| `NODE_ENV` | No | `development` or `production` (default: development) |
+| `CORS_ORIGIN` | No | Allowed CORS origin. In development, defaults to `*` (any origin). In production, defaults to `*` — set this to your domain (e.g., `https://weather.example.com`) to restrict access. |

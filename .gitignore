@@ -3,5 +3,6 @@ dist
 .env
 .env.local
 *.log
+logs.jsonl
 coverage
 .turbo

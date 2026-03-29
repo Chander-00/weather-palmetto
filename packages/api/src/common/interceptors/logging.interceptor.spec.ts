@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
+import { ExecutionContext } from '@nestjs/common'
 import { LoggingInterceptor } from './logging.interceptor'
 import { of } from 'rxjs'
 
@@ -10,7 +11,7 @@ describe('LoggingInterceptor', () => {
       switchToHttp: () => ({
         getRequest: () => ({ method: 'GET', url: '/api/weather?city=London' })
       })
-    } as any
+    } as unknown as ExecutionContext
 
     const mockHandler = { handle: () => of({ data: 'test' }) }
 

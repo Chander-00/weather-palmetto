@@ -76,10 +76,7 @@ export class WeatherAlertsService {
     }
   }
 
-  private checkHumidity(
-    current: CurrentWeather,
-    alerts: WeatherAlert[]
-  ): void {
+  private checkHumidity(current: CurrentWeather, alerts: WeatherAlert[]): void {
     if (current.humidity >= 90) {
       alerts.push({
         severity: 'info',
@@ -110,68 +107,60 @@ export class WeatherAlertsService {
       currentCondition.includes('drizzle') ||
       currentCondition.includes('shower')
     const isCurrentlySnowing =
-      currentCondition.includes('snow') ||
-      currentCondition.includes('sleet')
+      currentCondition.includes('snow') || currentCondition.includes('sleet')
 
-    for (let i = 0; i < hourly.length; i++) {
-      const entry = hourly[i]
+    let foundRain = false
+    let foundSnow = false
+    let foundThunder = false
+
+    for (const entry of hourly) {
+      if (foundRain && foundSnow && foundThunder) break
+
       const hoursAhead = this.hoursUntil(entry.time)
       if (hoursAhead <= 0) continue
 
       const condition = entry.condition.main.toLowerCase()
-      const hasRain =
-        condition.includes('rain') ||
-        condition.includes('drizzle') ||
-        condition.includes('shower') ||
-        entry.precipitationChance >= 60
+      const label = hoursAhead === 1 ? '1 hour' : `${hoursAhead} hours`
 
-      if (hasRain && !isCurrentlyRaining) {
-        const label = hoursAhead === 1 ? '1 hour' : `${hoursAhead} hours`
-        alerts.push({
-          severity: 'info',
-          message: `Rain expected within ${label} — consider bringing an umbrella`
-        })
-        break
+      if (!foundRain && !isCurrentlyRaining) {
+        const hasRain =
+          condition.includes('rain') ||
+          condition.includes('drizzle') ||
+          condition.includes('shower') ||
+          entry.precipitationChance >= 60
+
+        if (hasRain) {
+          alerts.push({
+            severity: 'info',
+            message: `Rain expected within ${label} — consider bringing an umbrella`
+          })
+          foundRain = true
+        }
       }
-    }
 
-    for (let i = 0; i < hourly.length; i++) {
-      const entry = hourly[i]
-      const hoursAhead = this.hoursUntil(entry.time)
-      if (hoursAhead <= 0) continue
+      if (!foundSnow && !isCurrentlySnowing) {
+        const hasSnow =
+          condition.includes('snow') ||
+          condition.includes('sleet') ||
+          condition.includes('blizzard')
 
-      const condition = entry.condition.main.toLowerCase()
-      const hasSnow =
-        condition.includes('snow') ||
-        condition.includes('sleet') ||
-        condition.includes('blizzard')
-
-      if (hasSnow && !isCurrentlySnowing) {
-        const label = hoursAhead === 1 ? '1 hour' : `${hoursAhead} hours`
-        alerts.push({
-          severity: 'warning',
-          message: `Snow expected within ${label} — plan accordingly`
-        })
-        break
+        if (hasSnow) {
+          alerts.push({
+            severity: 'warning',
+            message: `Snow expected within ${label} — plan accordingly`
+          })
+          foundSnow = true
+        }
       }
-    }
 
-    for (let i = 0; i < hourly.length; i++) {
-      const entry = hourly[i]
-      const hoursAhead = this.hoursUntil(entry.time)
-      if (hoursAhead <= 0) continue
-
-      const condition = entry.condition.main.toLowerCase()
-      if (
-        condition.includes('thunder') ||
-        condition.includes('storm')
-      ) {
-        const label = hoursAhead === 1 ? '1 hour' : `${hoursAhead} hours`
-        alerts.push({
-          severity: 'danger',
-          message: `Thunderstorms expected within ${label} — seek shelter if outdoors`
-        })
-        break
+      if (!foundThunder) {
+        if (condition.includes('thunder') || condition.includes('storm')) {
+          alerts.push({
+            severity: 'danger',
+            message: `Thunderstorms expected within ${label} — seek shelter if outdoors`
+          })
+          foundThunder = true
+        }
       }
     }
   }

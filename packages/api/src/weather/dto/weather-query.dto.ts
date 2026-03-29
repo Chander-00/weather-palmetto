@@ -2,6 +2,7 @@ import {
   IsOptional,
   IsString,
   IsNumber,
+  IsIn,
   Min,
   Max,
   MaxLength,
@@ -45,6 +46,6 @@ export class WeatherQueryDto {
     default: 'imperial'
   })
   @IsOptional()
-  @IsString()
+  @IsIn(['metric', 'imperial'])
   units?: 'metric' | 'imperial' = 'imperial'
 }

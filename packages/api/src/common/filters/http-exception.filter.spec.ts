@@ -1,15 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { GlobalExceptionFilter } from './http-exception.filter'
-import { HttpException, HttpStatus } from '@nestjs/common'
+import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { requestContext } from '../context/request-context'
 
 describe('GlobalExceptionFilter', () => {
   let filter: GlobalExceptionFilter
   let mockResponse: { status: ReturnType<typeof vi.fn> }
   let mockJson: ReturnType<typeof vi.fn>
-  let mockHost: any
+  let mockHost: ArgumentsHost
 
   beforeEach(() => {
-    filter = new GlobalExceptionFilter()
+    const mockConfig = { get: vi.fn().mockReturnValue('development') } as unknown as ConfigService
+    filter = new GlobalExceptionFilter(mockConfig)
     mockJson = vi.fn()
     mockResponse = {
       status: vi.fn().mockReturnValue({ json: mockJson })
@@ -19,7 +22,7 @@ describe('GlobalExceptionFilter', () => {
         getResponse: () => mockResponse,
         getRequest: () => ({ method: 'GET', url: '/api/weather?city=London' })
       })
-    }
+    } as unknown as ArgumentsHost
   })
 
   it('should handle HttpException with correct status', () => {
@@ -54,5 +57,15 @@ describe('GlobalExceptionFilter', () => {
     expect(mockJson).toHaveBeenCalledWith(
       expect.objectContaining({ timestamp: expect.any(String) })
     )
+  })
+
+  it('should include requestId when running in request context', () => {
+    requestContext.run({ requestId: 'test-request-id' }, () => {
+      filter.catch(new Error('test'), mockHost)
+
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({ trace_id: 'test-request-id' })
+      )
+    })
   })
 })

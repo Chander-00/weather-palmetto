@@ -9,6 +9,31 @@ import {
 const BASE_URL = 'https://api.weather.gov'
 const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search'
 
+interface WeatherGovMeasurement {
+  value: number | null
+  unitCode?: string
+}
+
+interface WeatherGovObservation {
+  temperature: WeatherGovMeasurement
+  windSpeed: WeatherGovMeasurement
+  windChill?: WeatherGovMeasurement
+  windDirection: WeatherGovMeasurement
+  relativeHumidity: WeatherGovMeasurement
+  barometricPressure: WeatherGovMeasurement
+  visibility: WeatherGovMeasurement
+}
+
+interface WeatherGovForecastPeriod {
+  startTime: string
+  temperature: number
+  isDaytime: boolean
+  windSpeed: string
+  shortForecast: string
+  detailedForecast: string
+  probabilityOfPrecipitation?: { value: number }
+}
+
 const headers = {
   'User-Agent': '(weather-app, contact@weather-app.dev)',
   Accept: 'application/geo+json'
@@ -61,6 +86,13 @@ export class WeatherGovProvider implements WeatherProvider {
     const resolvedCity = relativeLocation?.properties?.city || cityName
     const resolvedState = relativeLocation?.properties?.state || country
 
+    if (
+      typeof forecastOffice !== 'string' ||
+      !forecastOffice.startsWith(BASE_URL)
+    ) {
+      throw new Error('Invalid forecast office URL from Weather.gov')
+    }
+
     const stationsUrl = `${forecastOffice}/stations`
 
     const [forecastResponse, hourlyResponse, stationsResponse] =
@@ -78,7 +110,7 @@ export class WeatherGovProvider implements WeatherProvider {
         axios.get(stationsUrl, { headers }).catch(() => null)
       ])
 
-    let currentObservation: any = null
+    let currentObservation: WeatherGovObservation | null = null
     if (stationsResponse?.data?.features?.length) {
       const stationId =
         stationsResponse.data.features[0].properties.stationIdentifier
@@ -106,7 +138,7 @@ export class WeatherGovProvider implements WeatherProvider {
     )
   }
 
-  private fahrenheitValue(temp: any): number {
+  private fahrenheitValue(temp: WeatherGovMeasurement | undefined): number {
     if (!temp?.value && temp?.value !== 0) return 0
     if (temp.unitCode?.includes('degC') || temp.unitCode?.includes('celsius')) {
       return Math.round((temp.value * 9) / 5 + 32)
@@ -119,9 +151,9 @@ export class WeatherGovProvider implements WeatherProvider {
     country: string,
     lat: number,
     lon: number,
-    observation: any,
-    forecastPeriods: any[],
-    hourlyPeriods: any[]
+    observation: WeatherGovObservation | null,
+    forecastPeriods: WeatherGovForecastPeriod[],
+    hourlyPeriods: WeatherGovForecastPeriod[]
   ): NormalizedWeather {
     const current = forecastPeriods[0]
 
@@ -135,7 +167,7 @@ export class WeatherGovProvider implements WeatherProvider {
 
     const dailyMap = new Map<
       string,
-      { highs: number[]; lows: number[]; period: any }
+      { highs: number[]; lows: number[]; period: WeatherGovForecastPeriod }
     >()
 
     for (const period of forecastPeriods) {
@@ -197,7 +229,7 @@ export class WeatherGovProvider implements WeatherProvider {
         }
       },
       forecast: forecastDays,
-      hourly: hourlyPeriods.slice(0, 8).map((period: any) => ({
+      hourly: hourlyPeriods.slice(0, 8).map((period: WeatherGovForecastPeriod) => ({
         time: period.startTime,
         temperature: period.temperature,
         condition: {

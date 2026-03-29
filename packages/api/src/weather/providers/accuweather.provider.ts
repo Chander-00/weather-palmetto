@@ -7,6 +7,49 @@ import {
   ForecastDay
 } from '../interfaces/weather-provider.interface'
 
+interface AccuWeatherLocation {
+  Key: string
+  LocalizedName: string
+  Country: { ID: string }
+  GeoPosition: { Latitude: number; Longitude: number }
+}
+
+interface AccuWeatherDayDetail {
+  RelativeHumidity?: { Average: number }
+  Wind?: { Speed: { Value: number } }
+  IconPhrase?: string
+  LongPhrase?: string
+  Icon?: number
+}
+
+interface AccuWeatherDailyForecast {
+  Date: string
+  Temperature: {
+    Maximum: { Value: number }
+    Minimum: { Value: number }
+  }
+  Day?: AccuWeatherDayDetail
+}
+
+interface AccuWeatherForecastResponse {
+  DailyForecasts: AccuWeatherDailyForecast[]
+}
+
+interface AccuWeatherCurrentCondition {
+  Temperature: { Imperial: { Value: number } }
+  RealFeelTemperature?: { Imperial?: { Value: number } }
+  RelativeHumidity?: number
+  Pressure?: { Imperial?: { Value: number } }
+  Wind?: {
+    Speed?: { Imperial?: { Value: number } }
+    Direction?: { Degrees: number }
+  }
+  Visibility?: { Imperial?: { Value: number } }
+  UVIndex?: number
+  WeatherText: string
+  WeatherIcon: number
+}
+
 const BASE_URL = 'https://dataservice.accuweather.com'
 
 @Injectable()
@@ -25,37 +68,59 @@ export class AccuWeatherProvider implements WeatherProvider {
   }
 
   async getWeatherByCity(city: string): Promise<NormalizedWeather> {
-    const searchResponse = await axios.get(
-      `${BASE_URL}/locations/v1/cities/search`,
-      {
-        params: { apikey: this.apiKey, q: city }
+    this.logger.log(`Fetching weather by city: ${city}`)
+    try {
+      const searchResponse = await axios.get(
+        `${BASE_URL}/locations/v1/cities/search`,
+        {
+          params: { apikey: this.apiKey, q: city }
+        }
+      )
+
+      if (!searchResponse.data.length) {
+        throw new Error(`City "${city}" not found on AccuWeather`)
       }
-    )
 
-    if (!searchResponse.data.length) {
-      throw new Error(`City "${city}" not found on AccuWeather`)
+      const location = searchResponse.data[0]
+      return this.fetchWeatherByLocationKey(location)
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch weather for city "${city}": ${error instanceof Error ? error.message : error}`
+      )
+      throw error
     }
-
-    const location = searchResponse.data[0]
-    return this.fetchWeatherByLocationKey(location)
   }
 
   async getWeatherByCoordinates(
     lat: number,
     lon: number
   ): Promise<NormalizedWeather> {
-    const searchResponse = await axios.get(
-      `${BASE_URL}/locations/v1/cities/geoposition/search`,
-      {
-        params: { apikey: this.apiKey, q: `${lat},${lon}` }
-      }
-    )
+    this.logger.log(`Fetching weather by coordinates: ${lat}, ${lon}`)
+    try {
+      const searchResponse = await axios.get(
+        `${BASE_URL}/locations/v1/cities/geoposition/search`,
+        {
+          params: { apikey: this.apiKey, q: `${lat},${lon}` }
+        }
+      )
 
-    return this.fetchWeatherByLocationKey(searchResponse.data)
+      if (!searchResponse.data?.Key) {
+        throw new Error(
+          `No AccuWeather location found for coordinates ${lat}, ${lon}`
+        )
+      }
+
+      return this.fetchWeatherByLocationKey(searchResponse.data)
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch weather for coordinates ${lat}, ${lon}: ${error instanceof Error ? error.message : error}`
+      )
+      throw error
+    }
   }
 
   private async fetchWeatherByLocationKey(
-    location: any
+    location: AccuWeatherLocation
   ): Promise<NormalizedWeather> {
     const locationKey = location.Key
 
@@ -72,12 +137,12 @@ export class AccuWeatherProvider implements WeatherProvider {
   }
 
   private normalize(
-    location: any,
-    current: any,
-    forecast: any
+    location: AccuWeatherLocation,
+    current: AccuWeatherCurrentCondition,
+    forecast: AccuWeatherForecastResponse
   ): NormalizedWeather {
     const forecastDays: ForecastDay[] = forecast.DailyForecasts.slice(0, 5).map(
-      (day: any) => ({
+      (day: AccuWeatherDailyForecast) => ({
         date: new Date(day.Date).toISOString().split('T')[0],
         temperatureHigh: Math.round(day.Temperature.Maximum.Value),
         temperatureLow: Math.round(day.Temperature.Minimum.Value),

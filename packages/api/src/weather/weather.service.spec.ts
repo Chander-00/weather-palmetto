@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { Cache } from 'cache-manager'
 import { WeatherService } from './weather.service'
+import { WeatherAlertsService } from './weather-alerts.service'
 import { OpenWeatherProvider } from './providers/openweather.provider'
 import { AccuWeatherProvider } from './providers/accuweather.provider'
 import { WeatherGovProvider } from './providers/weathergov.provider'
@@ -33,11 +35,8 @@ describe('WeatherService', () => {
   let openWeather: Partial<OpenWeatherProvider>
   let accuWeather: Partial<AccuWeatherProvider>
   let weatherGov: Partial<WeatherGovProvider>
-  let mockAlertsService: { generate: ReturnType<typeof vi.fn> }
-  let mockCache: {
-    get: ReturnType<typeof vi.fn>
-    set: ReturnType<typeof vi.fn>
-  }
+  let mockAlertsService: Pick<WeatherAlertsService, 'generate'>
+  let mockCache: Pick<Cache, 'get' | 'set'>
 
   beforeEach(() => {
     openWeather = {
@@ -82,11 +81,11 @@ describe('WeatherService', () => {
     }
 
     service = new WeatherService(
-      openWeather as any,
-      accuWeather as any,
-      weatherGov as any,
-      mockAlertsService as any,
-      mockCache as any
+      openWeather as unknown as OpenWeatherProvider,
+      accuWeather as unknown as AccuWeatherProvider,
+      weatherGov as unknown as WeatherGovProvider,
+      mockAlertsService as unknown as WeatherAlertsService,
+      mockCache as unknown as Cache
     )
   })
 
