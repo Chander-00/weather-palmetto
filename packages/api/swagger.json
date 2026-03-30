@@ -1,0 +1,345 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/weather": {
+      "get": {
+        "operationId": "WeatherController_getWeather",
+        "parameters": [
+          {
+            "name": "city",
+            "required": false,
+            "in": "query",
+            "description": "City name to search for",
+            "schema": {
+              "example": "London",
+              "type": "string"
+            }
+          },
+          {
+            "name": "lat",
+            "required": false,
+            "in": "query",
+            "description": "Latitude",
+            "schema": {
+              "example": 51.5074,
+              "type": "number"
+            }
+          },
+          {
+            "name": "lon",
+            "required": false,
+            "in": "query",
+            "description": "Longitude",
+            "schema": {
+              "example": -0.1278,
+              "type": "number"
+            }
+          },
+          {
+            "name": "units",
+            "required": false,
+            "in": "query",
+            "description": "Temperature unit",
+            "schema": {
+              "default": "imperial",
+              "type": "string",
+              "enum": [
+                "metric",
+                "imperial"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeatherResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters"
+          },
+          "404": {
+            "description": "City not found"
+          },
+          "500": {
+            "description": "All weather providers failed"
+          }
+        },
+        "summary": "Get weather data by city name or coordinates",
+        "tags": [
+          "Weather"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Health check endpoint",
+        "tags": [
+          "Health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Weather API",
+    "description": "Weather data aggregation API with multi-provider fallback",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "CoordinatesDto": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "example": 51.5074
+          },
+          "lon": {
+            "type": "number",
+            "example": -0.1278
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "LocationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "London"
+          },
+          "country": {
+            "type": "string",
+            "example": "GB"
+          },
+          "coordinates": {
+            "$ref": "#/components/schemas/CoordinatesDto"
+          }
+        },
+        "required": [
+          "name",
+          "country",
+          "coordinates"
+        ]
+      },
+      "ConditionDto": {
+        "type": "object",
+        "properties": {
+          "main": {
+            "type": "string",
+            "example": "Clouds"
+          },
+          "description": {
+            "type": "string",
+            "example": "overcast clouds"
+          },
+          "icon": {
+            "type": "string",
+            "example": "04d"
+          }
+        },
+        "required": [
+          "main",
+          "description",
+          "icon"
+        ]
+      },
+      "CurrentWeatherDto": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "example": 15.2
+          },
+          "feelsLike": {
+            "type": "number",
+            "example": 13.8
+          },
+          "humidity": {
+            "type": "number",
+            "example": 72
+          },
+          "pressure": {
+            "type": "number",
+            "example": 1013
+          },
+          "windSpeed": {
+            "type": "number",
+            "example": 5.4
+          },
+          "windDirection": {
+            "type": "number",
+            "example": 220
+          },
+          "visibility": {
+            "type": "number",
+            "example": 10000
+          },
+          "uvIndex": {
+            "type": "object",
+            "example": 3.5,
+            "nullable": true
+          },
+          "condition": {
+            "$ref": "#/components/schemas/ConditionDto"
+          }
+        },
+        "required": [
+          "temperature",
+          "feelsLike",
+          "humidity",
+          "pressure",
+          "windSpeed",
+          "windDirection",
+          "visibility",
+          "uvIndex",
+          "condition"
+        ]
+      },
+      "ForecastDayDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2024-03-15"
+          },
+          "temperatureHigh": {
+            "type": "number",
+            "example": 18.5
+          },
+          "temperatureLow": {
+            "type": "number",
+            "example": 12.3
+          },
+          "humidity": {
+            "type": "number",
+            "example": 65
+          },
+          "windSpeed": {
+            "type": "number",
+            "example": 4.2
+          },
+          "condition": {
+            "$ref": "#/components/schemas/ConditionDto"
+          }
+        },
+        "required": [
+          "date",
+          "temperatureHigh",
+          "temperatureLow",
+          "humidity",
+          "windSpeed",
+          "condition"
+        ]
+      },
+      "HourlyForecastDto": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string",
+            "example": "2024-03-15T15:00:00"
+          },
+          "temperature": {
+            "type": "number",
+            "example": 16
+          },
+          "condition": {
+            "$ref": "#/components/schemas/ConditionDto"
+          },
+          "precipitationChance": {
+            "type": "number",
+            "example": 20
+          }
+        },
+        "required": [
+          "time",
+          "temperature",
+          "condition",
+          "precipitationChance"
+        ]
+      },
+      "WeatherAlertDto": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string",
+            "example": "warning",
+            "enum": [
+              "info",
+              "warning",
+              "danger"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "example": "Rain expected within 3 hours — consider bringing an umbrella"
+          }
+        },
+        "required": [
+          "severity",
+          "message"
+        ]
+      },
+      "WeatherResponseDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "example": "openweather"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LocationDto"
+          },
+          "current": {
+            "$ref": "#/components/schemas/CurrentWeatherDto"
+          },
+          "forecast": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ForecastDayDto"
+            }
+          },
+          "hourly": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HourlyForecastDto"
+            }
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeatherAlertDto"
+            }
+          }
+        },
+        "required": [
+          "provider",
+          "location",
+          "current",
+          "forecast",
+          "hourly",
+          "alerts"
+        ]
+      }
+    }
+  }
+}
