@@ -9,11 +9,16 @@ import { OpenWeatherProvider } from './providers/openweather.provider'
 import { AccuWeatherProvider } from './providers/accuweather.provider'
 import { WeatherGovProvider } from './providers/weathergov.provider'
 import { WeatherAlertsService } from './weather-alerts.service'
+import { CircuitBreaker } from './circuit-breaker'
+
+const MAX_RETRIES = 2
+const RETRY_BASE_DELAY_MS = 500
 
 @Injectable()
 export class WeatherService {
   private readonly logger = new Logger(WeatherService.name)
   private readonly providers: WeatherProvider[]
+  private readonly circuits: Map<string, CircuitBreaker>
 
   constructor(
     private readonly openWeather: OpenWeatherProvider,
@@ -24,6 +29,16 @@ export class WeatherService {
   ) {
     this.providers = [this.openWeather, this.accuWeather, this.weatherGov].sort(
       (a, b) => a.priority - b.priority
+    )
+
+    this.circuits = new Map(
+      this.providers.map((p) => [
+        p.name,
+        new CircuitBreaker(p.name, {
+          failureThreshold: 3,
+          resetTimeoutMs: 30_000
+        })
+      ])
     )
   }
 
@@ -91,11 +106,26 @@ export class WeatherService {
     }
 
     for (const provider of availableProviders) {
+      const circuit = this.circuits.get(provider.name)!
+
+      if (!circuit.shouldAllow()) {
+        this.logger.warn(
+          `Circuit OPEN for ${provider.name}, skipping`
+        )
+        errors.push(`${provider.name}: circuit open`)
+        continue
+      }
+
       try {
-        const result = await fetcher(provider)
+        const result = await this.retryWithBackoff(
+          () => fetcher(provider),
+          provider.name
+        )
+        circuit.onSuccess()
         this.logger.log(`Successfully fetched weather from ${provider.name}`)
         return result
       } catch (error) {
+        circuit.onFailure()
         const message = error instanceof Error ? error.message : String(error)
         this.logger.warn(`Provider ${provider.name} failed: ${message}`)
         errors.push(`${provider.name}: ${message}`)
@@ -103,6 +133,49 @@ export class WeatherService {
     }
 
     throw new Error(`All weather providers failed: ${errors.join('; ')}`)
+  }
+
+  private async retryWithBackoff<T>(
+    fn: () => Promise<T>,
+    providerName: string
+  ): Promise<T> {
+    let lastError: Error | undefined
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        return await fn()
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+
+        if (this.isNonRetryable(lastError)) {
+          throw lastError
+        }
+
+        if (attempt < MAX_RETRIES) {
+          const delay = RETRY_BASE_DELAY_MS * 2 ** attempt
+          this.logger.warn(
+            `Retry ${attempt + 1}/${MAX_RETRIES} for ${providerName} in ${delay}ms`
+          )
+          await this.sleep(delay)
+        }
+      }
+    }
+    throw lastError!
+  }
+
+  private isNonRetryable(error: Error): boolean {
+    const msg = error.message.toLowerCase()
+    return (
+      msg.includes('not found') ||
+      msg.includes('404') ||
+      msg.includes('401') ||
+      msg.includes('403') ||
+      msg.includes('invalid api key')
+    )
+  }
+
+  // Exposed as protected for testability
+  protected sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   private convertToMetric(weather: NormalizedWeather): void {

@@ -8,6 +8,7 @@ import {
 
 const BASE_URL = 'https://api.weather.gov'
 const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search'
+const REQUEST_TIMEOUT_MS = 10_000
 
 interface WeatherGovMeasurement {
   value: number | null
@@ -51,7 +52,8 @@ export class WeatherGovProvider implements WeatherProvider {
 
   async getWeatherByCity(city: string): Promise<NormalizedWeather> {
     const geoResponse = await axios.get(GEOCODING_URL, {
-      params: { name: city, count: 1, language: 'en', format: 'json' }
+      params: { name: city, count: 1, language: 'en', format: 'json' },
+      timeout: REQUEST_TIMEOUT_MS
     })
 
     if (!geoResponse.data.results?.length) {
@@ -78,7 +80,7 @@ export class WeatherGovProvider implements WeatherProvider {
   ): Promise<NormalizedWeather> {
     const pointsResponse = await axios.get(
       `${BASE_URL}/points/${lat.toFixed(4)},${lon.toFixed(4)}`,
-      { headers }
+      { headers, timeout: REQUEST_TIMEOUT_MS }
     )
     const { forecastOffice, gridX, gridY, relativeLocation } =
       pointsResponse.data.properties
@@ -99,15 +101,15 @@ export class WeatherGovProvider implements WeatherProvider {
       await Promise.all([
         axios.get(
           `${BASE_URL}/gridpoints/${pointsResponse.data.properties.gridId}/${gridX},${gridY}/forecast`,
-          { headers }
+          { headers, timeout: REQUEST_TIMEOUT_MS }
         ),
         axios
           .get(
             `${BASE_URL}/gridpoints/${pointsResponse.data.properties.gridId}/${gridX},${gridY}/forecast/hourly`,
-            { headers }
+            { headers, timeout: REQUEST_TIMEOUT_MS }
           )
           .catch(() => null),
-        axios.get(stationsUrl, { headers }).catch(() => null)
+        axios.get(stationsUrl, { headers, timeout: REQUEST_TIMEOUT_MS }).catch(() => null)
       ])
 
     let currentObservation: WeatherGovObservation | null = null
@@ -117,7 +119,7 @@ export class WeatherGovProvider implements WeatherProvider {
       try {
         const obsResponse = await axios.get(
           `${BASE_URL}/stations/${stationId}/observations/latest`,
-          { headers }
+          { headers, timeout: REQUEST_TIMEOUT_MS }
         )
         currentObservation = obsResponse.data.properties
       } catch {

@@ -79,6 +79,34 @@ class ForecastDayDto {
   condition: ConditionDto
 }
 
+class HourlyForecastDto {
+  @ApiProperty({ example: '2024-03-15T15:00:00' })
+  time: string
+
+  @ApiProperty({ example: 16 })
+  temperature: number
+
+  @ApiProperty()
+  condition: ConditionDto
+
+  @ApiProperty({ example: 20 })
+  precipitationChance: number
+}
+
+class WeatherAlertDto {
+  @ApiProperty({
+    example: 'warning',
+    enum: ['info', 'warning', 'danger']
+  })
+  severity: 'info' | 'warning' | 'danger'
+
+  @ApiProperty({
+    example:
+      'Rain expected within 3 hours — consider bringing an umbrella'
+  })
+  message: string
+}
+
 export class WeatherResponseDto {
   @ApiProperty({ example: 'openweather' })
   provider: string
@@ -91,4 +119,10 @@ export class WeatherResponseDto {
 
   @ApiProperty({ type: [ForecastDayDto] })
   forecast: ForecastDayDto[]
+
+  @ApiProperty({ type: [HourlyForecastDto] })
+  hourly: HourlyForecastDto[]
+
+  @ApiProperty({ type: [WeatherAlertDto] })
+  alerts: WeatherAlertDto[]
 }

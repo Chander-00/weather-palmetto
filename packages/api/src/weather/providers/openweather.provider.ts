@@ -37,6 +37,7 @@ interface OpenWeatherCurrentResponse {
 }
 
 const BASE_URL = 'https://api.openweathermap.org/data/2.5'
+const REQUEST_TIMEOUT_MS = 10_000
 
 @Injectable()
 export class OpenWeatherProvider implements WeatherProvider {
@@ -58,10 +59,12 @@ export class OpenWeatherProvider implements WeatherProvider {
     try {
       const [current, forecast] = await Promise.all([
         axios.get(`${BASE_URL}/weather`, {
-          params: { q: city, appid: this.apiKey, units: 'imperial' }
+          params: { q: city, appid: this.apiKey, units: 'imperial' },
+          timeout: REQUEST_TIMEOUT_MS
         }),
         axios.get(`${BASE_URL}/forecast`, {
-          params: { q: city, appid: this.apiKey, units: 'imperial' }
+          params: { q: city, appid: this.apiKey, units: 'imperial' },
+          timeout: REQUEST_TIMEOUT_MS
         })
       ])
 
@@ -82,10 +85,12 @@ export class OpenWeatherProvider implements WeatherProvider {
     try {
       const [current, forecast] = await Promise.all([
         axios.get(`${BASE_URL}/weather`, {
-          params: { lat, lon, appid: this.apiKey, units: 'imperial' }
+          params: { lat, lon, appid: this.apiKey, units: 'imperial' },
+          timeout: REQUEST_TIMEOUT_MS
         }),
         axios.get(`${BASE_URL}/forecast`, {
-          params: { lat, lon, appid: this.apiKey, units: 'imperial' }
+          params: { lat, lon, appid: this.apiKey, units: 'imperial' },
+          timeout: REQUEST_TIMEOUT_MS
         })
       ])
 

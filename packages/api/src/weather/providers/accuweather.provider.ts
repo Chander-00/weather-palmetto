@@ -51,6 +51,7 @@ interface AccuWeatherCurrentCondition {
 }
 
 const BASE_URL = 'https://dataservice.accuweather.com'
+const REQUEST_TIMEOUT_MS = 10_000
 
 @Injectable()
 export class AccuWeatherProvider implements WeatherProvider {
@@ -73,7 +74,8 @@ export class AccuWeatherProvider implements WeatherProvider {
       const searchResponse = await axios.get(
         `${BASE_URL}/locations/v1/cities/search`,
         {
-          params: { apikey: this.apiKey, q: city }
+          params: { apikey: this.apiKey, q: city },
+          timeout: REQUEST_TIMEOUT_MS
         }
       )
 
@@ -100,7 +102,8 @@ export class AccuWeatherProvider implements WeatherProvider {
       const searchResponse = await axios.get(
         `${BASE_URL}/locations/v1/cities/geoposition/search`,
         {
-          params: { apikey: this.apiKey, q: `${lat},${lon}` }
+          params: { apikey: this.apiKey, q: `${lat},${lon}` },
+          timeout: REQUEST_TIMEOUT_MS
         }
       )
 
@@ -126,10 +129,12 @@ export class AccuWeatherProvider implements WeatherProvider {
 
     const [current, forecast] = await Promise.all([
       axios.get(`${BASE_URL}/currentconditions/v1/${locationKey}`, {
-        params: { apikey: this.apiKey, details: true }
+        params: { apikey: this.apiKey, details: true },
+        timeout: REQUEST_TIMEOUT_MS
       }),
       axios.get(`${BASE_URL}/forecasts/v1/daily/5day/${locationKey}`, {
-        params: { apikey: this.apiKey, details: true }
+        params: { apikey: this.apiKey, details: true },
+        timeout: REQUEST_TIMEOUT_MS
       })
     ])
 

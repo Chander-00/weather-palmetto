@@ -87,6 +87,9 @@ describe('WeatherService', () => {
       mockAlertsService as unknown as WeatherAlertsService,
       mockCache as unknown as Cache
     )
+
+    // Bypass real delays in retry backoff
+    vi.spyOn(service as never, 'sleep').mockResolvedValue(undefined)
   })
 
   it('should return data from the primary provider', async () => {
